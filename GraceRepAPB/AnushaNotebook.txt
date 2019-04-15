@@ -1,2 +1,18 @@
 Anusha's notebook for Gff habitat suitability RF model
+#basic commands to remember
+    #
+    #cd - get somewhere
+    #ls - list
+    #mkdir - make directory
+    #pwd - see where you are
+#Getting Precip data from CHELSA
 
+MAKE FILE: 
+cd /home/fas/caccone/apb56/project/GFFHABITAT/RASTERS/CHELSA/prec
+
+for n in 01 02 03 04 05 06 07 08 09 10 11 12 ; do
+wget https://www.wsl.ch/lud/chelsa/data/timeseries/prec/CHELSA_prec_2008_${n}_V1.2.1.tif
+done
+
+#figure out how to use OpenEV
+#lookup xquartz (ssh -X -Y address)
