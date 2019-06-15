@@ -16,6 +16,7 @@ prec_r_11 <- raster("project/CHELSA/prec_mean/uganda_clips/CHELSA_prec_11_V1.2.1
 prec_r_12 <- raster("project/CHELSA/prec_mean/uganda_clips/CHELSA_prec_12_V1.2.1_UgandaClip.tif")
 
 prec_uganda <-stack(prec_r_1,prec_r_2,prec_r_3,prec_r_4,prec_r_5,prec_r_6,prec_r_7,prec_r_8,prec_r_9,prec_r_10,prec_r_11,prec_r_12)
+proj4string(prec_uganda)<-CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 
 tmax_r_1 <- raster("project/CHELSA/tmax_mean/uganda_clips/CHELSA_tmax_01_V1.2.1_UgandaClip.tif")
 tmax_r_2 <- raster("project/CHELSA/tmax_mean/uganda_clips/CHELSA_tmax_02_V1.2.1_UgandaClip.tif")
@@ -31,6 +32,7 @@ tmax_r_11 <- raster("project/CHELSA/tmax_mean/uganda_clips/CHELSA_tmax_11_V1.2.1
 tmax_r_12 <- raster("project/CHELSA/tmax_mean/uganda_clips/CHELSA_tmax_12_V1.2.1_UgandaClip.tif")
 
 tmax_uganda <-stack(tmax_r_1,tmax_r_2,tmax_r_3,tmax_r_4,tmax_r_5,tmax_r_6,tmax_r_7,tmax_r_8,tmax_r_9,tmax_r_10,tmax_r_11,tmax_r_12)
+proj4string(tmax_uganda)<-CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 
 tmin_r_1 <- raster("project/CHELSA/tmin_mean/uganda_clips/CHELSA_tmin_01_V1.2.1_UgandaClip.tif")
 tmin_r_2 <- raster("project/CHELSA/tmin_mean/uganda_clips/CHELSA_tmin_02_V1.2.1_UgandaClip.tif")
@@ -46,9 +48,12 @@ tmin_r_11 <- raster("project/CHELSA/tmin_mean/uganda_clips/CHELSA_tmin_11_V1.2.1
 tmin_r_12 <- raster("project/CHELSA/tmin_mean/uganda_clips/CHELSA_tmin_12_V1.2.1_UgandaClip.tif")
 
 tmin_uganda <-stack(tmin_r_1,tmin_r_2,tmin_r_3,tmin_r_4,tmin_r_5,tmin_r_6,tmin_r_7,tmin_r_8,tmin_r_9,tmin_r_10,tmin_r_11,tmin_r_12)
+proj4string(tmin_uganda)<-CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 
 library(dismo)
 biovar_uganda <- biovars(prec_uganda,tmin_uganda,tmax_uganda)
 plot(biovar_uganda)
+#repetitive definition of projection, but added in case (this line is sufficent for the output to be in the desired CRS)
+proj4string(biovar_uganda)<-CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 
-writeRaster(biovar,"/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaBiovars",format="GTiff")
+writeRaster(biovar_uganda,"/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaBiovars",format="GTiff")
