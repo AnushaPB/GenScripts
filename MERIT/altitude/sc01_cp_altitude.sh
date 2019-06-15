@@ -1,1 +1,3 @@
-cp /project/fas/sbsc/ga254/grace0.grace.hpc.yale.internal/dataproces/MERIT/altitude/median/altitude_1KMmedian_MERIT.tif /home/fas/caccone/apb56/scripts/MERIT/altitude
+
+cp /project/fas/powell/esp38/dataproces/MOSQLAND/consland/MERIT/altitude/altitude_1KMmedian_MERIT.tif  /home/fas/caccone/apb56/project/MERIT/altitude
+

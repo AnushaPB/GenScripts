@@ -8,9 +8,9 @@
 #SBATCH --mail-user=anusha.bishop@yale.edu                                                      
 #SBATCH --job-name=sc02_edit_alt.sh 
 
-cd /home/fas/caccone/apb56/scripts/MERIT/altitude
+cd /home/fas/caccone/apb56/project/MERIT/altitude
 
-OUTDIR=/home/fas/caccone/apb56/scripts/MERIT/altitude/kenya_clips
+OUTDIR=/home/fas/caccone/apb56/project/MERIT/altitude/kenya_clips
 
 gdal_edit.py -a_ullr -180   84  180  -90 altitude_1KMmedian_MERIT.tif
 
