@@ -11,7 +11,7 @@
 #Cd to home directory 
 cd ~
 
-# have to unload python
+#have to unload python to load miniconda
 module unload Langs/Python
 # Loading conda env
 module load Tools/miniconda
@@ -24,4 +24,4 @@ module load Rpkgs/RASTER/2.5.2
 # Activate env_name
 source activate r_env
 
-R --vanilla -no-readline -q  -f  /home/fas/caccone/apb56/scripts/CHELSA/sc19_biovars_current.R
+R --vanilla -no-readline -q  -f  /home/fas/caccone/apb56/scripts/CHELSA/sc21_biovars_future.R
