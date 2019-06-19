@@ -24,4 +24,4 @@ module load Rpkgs/RASTER/2.5.2
 # Activate env_name
 source activate r_env
 
-R --vanilla -no-readline -q  -f  /home/fas/caccone/apb56/scripts/CHELSA/sc23_biovars_current_2008.R
+R --vanilla -no-readline -q  -f  /home/fas/caccone/apb56/scripts/CHELSA/sc23_biovars_current_2010.R
