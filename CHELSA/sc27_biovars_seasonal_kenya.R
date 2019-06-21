@@ -4,29 +4,29 @@ library(rgdal)
 #function to create custom biovars for wettest/warmest season. Format: mean [var1] of max[var2] season (ex: mean temp of wettest season)
 bio_custom_max <- function(var1,var2){
   #average var2 values by season (Kenya - WS1: Mar-May, DS1: Jun-Sep, WS2: Oct-Dec, DS2:Jan-Feb)
-  season.mean <- stackApply(var2, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
+  season.mean2 <- stackApply(var2, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #extract and sum all of the var2 values for each pixel in each layer
-  r.sum <- cellStats(season.mean,'sum')
+  r.sum <- cellStats(season.mean2,'sum')
   #identify the layer with the max var2 value
   r.max <- which.max(r.sum)
   #take the mean var1 by season for the final output
-  season.mean <- stackApply(var1, indices=indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
+  season.mean1 <- stackApply(var1, indices=indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #subset the var1 data set to only include the layer with the corresponding max var2 value 
-  stack(subset(season.mean,as.numeric(r.max)))
+  stack(subset(season.mean1,as.numeric(r.max)))
 }
 
 #function to create custom biovars for driest/coldest. Format: mean [var1] of min[var2] season (ex: mean temp of driest season)
 bio_custom_min <- function(var1,var2){
   #average var2 values by season (Kenya - WS1: Mar-May, DS1: Jun-Sep, WS2: Oct-Dec, DS2:Jan-Feb)
-  season.mean <- stackApply(var2, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
+  season.mean2 <- stackApply(var2, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #extract and sum all of the var2 values for each pixel in each layer
-  r.sum <- cellStats(season.mean,'sum')
+  r.sum <- cellStats(season.mean2,'sum')
   #identify the layer with the min var2 value
   r.min <- which.min(r.sum)
   #take the mean var1 by season for the final output
-  season.mean <- stackApply(var1, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
+  season.mean1 <- stackApply(var1, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #subset the var1 data set to only include the layer with the corresponding min var2 value 
-  stack(subset(season.mean,as.numeric(r.min)))
+  stack(subset(season.mean1,as.numeric(r.min)))
 }
 
 #function to create seasonal bioclim variables
