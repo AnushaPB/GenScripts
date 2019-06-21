@@ -3,28 +3,28 @@ library(rgdal)
 
 #function to create custom biovars for wettest/warmest season. Format: mean [var1] of max[var2] season (ex: mean temp of wettest season)
 bio_custom_max <- function(var1,var2){
-  #average var2 values by season (WS1:April-May,DS1:June-July,WS2:August-September,DS2:October-March)
-  season.sum <- stackApply(var2, indices=c(4,4,4,1,1,2,2,3,3,4,4,4), fun=mean) #FIX ORDER
+  #average var2 values by season (Kenya - WS1: Mar-May, DS1: Jun-Sep, WS2: Oct-Dec, DS2:Jan-Feb)
+  season.mean <- stackApply(var2, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #extract and sum all of the var2 values for each pixel in each layer
-  r.sum <- cellStats(season.sum,'sum')
+  r.sum <- cellStats(season.mean,'sum')
   #identify the layer with the max var2 value
   r.max <- which.max(r.sum)
   #take the mean var1 by season for the final output
-  season.mean <- stackApply(var1, indices=c(4,4,4,1,1,2,2,3,3,4,4,4), fun=mean)#FIX ORDER
+  season.mean <- stackApply(var1, indices=indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #subset the var1 data set to only include the layer with the corresponding max var2 value 
   stack(subset(season.mean,as.numeric(r.max)))
 }
 
 #function to create custom biovars for driest/coldest. Format: mean [var1] of min[var2] season (ex: mean temp of driest season)
 bio_custom_min <- function(var1,var2){
-  #average var2 values by season
-  season.sum <- stackApply(var2, indices=c(4,4,4,1,1,2,2,3,3,4,4,4), fun=mean)
+  #average var2 values by season (Kenya - WS1: Mar-May, DS1: Jun-Sep, WS2: Oct-Dec, DS2:Jan-Feb)
+  season.mean <- stackApply(var2, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #extract and sum all of the var2 values for each pixel in each layer
-  r.sum <- cellStats(season.sum,'sum')
+  r.sum <- cellStats(season.mean,'sum')
   #identify the layer with the min var2 value
   r.min <- which.min(r.sum)
   #take the mean var1 by season for the final output
-  season.mean <- stackApply(var1, indices=c(4,4,4,1,1,2,2,3,3,4,4,4), fun=mean)
+  season.mean <- stackApply(var1, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #subset the var1 data set to only include the layer with the corresponding min var2 value 
   stack(subset(season.mean,as.numeric(r.min)))
 }
@@ -65,15 +65,16 @@ writeRaster(biovars,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/Ugand
 
 
 #Average seasonal bioclim variables for all years (current)
-biostack<-stack(paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaBioclimSeasonal",c(2008:2013),".tif"))
+biostack<-stack(paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaKenyaBiovarsSeasonal",c(2008:2013),".tif"))
 indices<-rep(c(1:8), times = 6) #combine corresponding biovar layers by mean (take mean of all biovars for all years)
 biostack_mean<-stackApply(biostack, indices, fun=mean)
 names(biostack_mean)<-c("BIO8S","BIO9S","BIO10S","BIO11S","BIO16S","BIO17S","BIO18S","BIO19S")
 writeRaster(biostack_mean,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaKenyaBiovarsSeasonalAllYears"),format="GTiff",overwrite=TRUE)
 
 #Average seasonal bioclim variables for all years (future)
-prec=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/prec/uganda_clips/CHELSA_prec_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaClip.tif"))
-temp=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/tmean/uganda_clips/CHELSA_tmean_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaClip.tif"))
+prec.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/prec/uganda_clips/CHELSA_prec_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaClip.tif"))
+temp.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/tmean/uganda_clips/CHELSA_tmean_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaClip.tif"))
 #create custom biovars
-biovars<-biovars_custom(prec,temp)
-writeRaster(biovars,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaKenyaBiovarsSeasonalFuture"),format="GTiff",overwrite=TRUE)
+biovars.f<-biovars_custom(prec.f,temp.f)
+names(biovars.f)<-c("BIO8S","BIO9S","BIO10S","BIO11S","BIO16S","BIO17S","BIO18S","BIO19S")
+writeRaster(biovars.f,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaKenyaBiovarsSeasonalFuture"),format="GTiff",overwrite=TRUE)
