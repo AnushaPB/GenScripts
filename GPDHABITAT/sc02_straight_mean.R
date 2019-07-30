@@ -5,7 +5,7 @@ library(foreach)
 library(doParallel)
 
 #load envvars and spatial lines files
-envvars<-stack("/home/fas/caccone/apb56/project/CHELSA/envvars_scaled_ktmask.tif")
+envvars<-stack("/home/fas/caccone/apb56/project/GPDHABITAT/envvars_kenya.tif")
 combos_coords1<-read.csv("/home/fas/caccone/apb56/project/GPDHABITAT/coord_combos_cluster1.csv")
 combos_coords1<-combos_coords1[,-1] #get rid of index row
 combos_coords2<-read.csv("/home/fas/caccone/apb56/project/GPDHABITAT/coord_combos_cluster2.csv")
