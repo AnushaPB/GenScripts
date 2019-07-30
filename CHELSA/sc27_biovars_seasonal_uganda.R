@@ -3,14 +3,14 @@ library(rgdal)
 
 #function to create custom biovars for wettest/warmest season. Format: mean [var1] of max[var2] season (ex: mean temp of wettest season)
 bio_custom_max <- function(var1,var2){
-  #average var2 values by season (WS1:April-May,DS1:June-July,WS2:August-September,DS2:October-March)
-  season.mean2 <- stackApply(var2, indices=c(4,4,4,1,1,2,2,3,3,4,4,4), fun=mean) #FIX ORDER
+  #average var2 values by season (Uganda Seasons: WS1:April-May,DS1:June-July,WS2:August-September,DS2:October-March)
+  season.mean2 <- stackApply(var2, indices=c(4,4,4,1,1,2,2,3,3,4,4,4), fun=mean) 
   #extract and sum all of the var2 values for each pixel in each layer
   r.sum <- cellStats(season.mean2,'sum')
   #identify the layer with the max var2 value
   r.max <- which.max(r.sum)
   #take the mean var1 by season for the final output
-  season.mean1 <- stackApply(var1, indices=c(4,4,4,1,1,2,2,3,3,4,4,4), fun=mean)#FIX ORDER
+  season.mean1 <- stackApply(var1, indices=c(4,4,4,1,1,2,2,3,3,4,4,4), fun=mean)
   #subset the var1 data set to only include the layer with the corresponding max var2 value 
   stack(subset(season.mean1,as.numeric(r.max)))
 }
@@ -32,21 +32,21 @@ bio_custom_min <- function(var1,var2){
 #function to create seasonal bioclim variables
 #temp and prec objects should be RasterStacks with 12 layers (months)
 biovars_custom <- function(temp,prec){
-#BIO8 = Mean Temperature of Wettest Quarter
+#BIO8S = Mean Temperature of Wettest Season
 BIO8S<-bio_custom_max(temp,prec)
-#BIO9 = Mean Temperature of Driest Quarter
+#BIO9S = Mean Temperature of Driest Season
 BIO9S<-bio_custom_min(temp,prec)
-#BIO10 = Mean Temperature of Warmest Quarter
+#BIO10S = Mean Temperature of Warmest Season
 BIO10S<-bio_custom_max(temp,temp)
-#BIO11 = Mean Temperature of Coldest Quarter
+#BIO11S = Mean Temperature of Coldest Season
 BIO11S<-bio_custom_min(temp,temp)
-#BIO16 = Precipitation of Wettest Quarter
+#BIO16S = Precipitation of Wettest Season
 BIO16S<-bio_custom_max(prec,prec)
-#BIO17 = Precipitation of Driest Quarter
+#BIO17S = Precipitation of Driest Season
 BIO17S<-bio_custom_min(prec,prec)
-#BIO18 = Precipitation of Warmest Quarter
+#BIO18S = Precipitation of Warmest Season
 BIO18S<-bio_custom_max(prec,temp)
-#BIO19 = Precipitation of Coldest Quarter
+#BIO19S = Precipitation of Coldest Season
 BIO19S<-bio_custom_min(prec,temp) 
 stack(BIO8S,BIO9S,BIO10S,BIO11S,BIO16S,BIO17S,BIO18S,BIO19S)
 }

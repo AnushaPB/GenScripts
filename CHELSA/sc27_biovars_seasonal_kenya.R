@@ -10,7 +10,7 @@ bio_custom_max <- function(var1,var2){
   #identify the layer with the max var2 value
   r.max <- which.max(r.sum)
   #take the mean var1 by season for the final output
-  season.mean1 <- stackApply(var1, indices=indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
+  season.mean1 <- stackApply(var1, indices=c(4,4,1,1,1,2,2,2,2,3,3,3), fun=mean)
   #subset the var1 data set to only include the layer with the corresponding max var2 value 
   stack(subset(season.mean1,as.numeric(r.max)))
 }
@@ -60,21 +60,21 @@ prec<-setExtent(prec,extent(28.6,42.5,-4.8,5))
 temp<-setExtent(temp,extent(28.6,42.5,-4.8,5))
 #create custom biovars
 biovars<-biovars_custom(prec,temp)
-writeRaster(biovars,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaKenyaBiovarsSeasonal",year),format="GTiff",overwrite=TRUE)
+writeRaster(biovars,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/KenyaBiovarsSeasonal",year),format="GTiff",overwrite=TRUE)
 }
 
 
 #Average seasonal bioclim variables for all years (current)
-biostack<-stack(paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaKenyaBiovarsSeasonal",c(2008:2013),".tif"))
+biostack<-stack(paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/KenyaBiovarsSeasonal",c(2008:2013),".tif"))
 indices<-rep(c(1:8), times = 6) #combine corresponding biovar layers by mean (take mean of all biovars for all years)
 biostack_mean<-stackApply(biostack, indices, fun=mean)
 names(biostack_mean)<-c("BIO8S","BIO9S","BIO10S","BIO11S","BIO16S","BIO17S","BIO18S","BIO19S")
-writeRaster(biostack_mean,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaKenyaBiovarsSeasonalAllYears"),format="GTiff",overwrite=TRUE)
+writeRaster(biostack_mean,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/KenyaBiovarsSeasonalAllYears"),format="GTiff",overwrite=TRUE)
 
 #Average seasonal bioclim variables for all years (future)
-prec.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/prec/uganda_clips/CHELSA_prec_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaClip.tif"))
-temp.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/tmean/uganda_clips/CHELSA_tmean_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaClip.tif"))
+prec.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/prec/uganda_kenya_clips/CHELSA_prec_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaKenyaClip.tif"))
+temp.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/tmean/uganda_kenya_clips/CHELSA_tmean_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaKenyaClip.tif"))
 #create custom biovars
 biovars.f<-biovars_custom(prec.f,temp.f)
 names(biovars.f)<-c("BIO8S","BIO9S","BIO10S","BIO11S","BIO16S","BIO17S","BIO18S","BIO19S")
-writeRaster(biovars.f,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/UgandaKenyaBiovarsSeasonalFuture"),format="GTiff",overwrite=TRUE)
+writeRaster(biovars.f,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/KenyaBiovarsSeasonalFuture"),format="GTiff",overwrite=TRUE)
