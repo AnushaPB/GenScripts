@@ -14,8 +14,8 @@ OUTDIR=/home/fas/caccone/apb56/project/MERIT/altitude/kenya_clips
 
 gdal_edit.py -a_ullr -180   84  180  -90 altitude_1KMmedian_MERIT.tif
 
-gdal_edit.py -a_nodata -999 altitude_1KMmedian_MERIT.tif
+pksetmask -i altitude_1KMmedian_MERIT.tif -m altitude_1KMmedian_MERIT.tif -o altitude_1KMmedian_MERIT.tif --msknodata -999 -nodata -999 
 
-pksetmask -i altitude_1KMmedian_MERIT.tif -m altitude_1KMmedian_MERIT.tif -o altitude_1KMmedian_MERIT.tif --msknodata -9999 -nodata -999   
+gdal_edit.py -a_nodata -999 altitude_1KMmedian_MERIT.tif
  
-gdal_translate  -projwin 33.7 4.73 42.5 -4.8  altitude_1KMmedian_MERIT.tif  $OUTDIR/altitude_1KMmedian_MERIT_KenyaClip.tif
+gdal_translate  -projwin 33.7 5 42.5 -4.8  altitude_1KMmedian_MERIT.tif  $OUTDIR/altitude_1KMmedian_MERIT_KenyaClip.tif

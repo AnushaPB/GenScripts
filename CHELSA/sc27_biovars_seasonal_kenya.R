@@ -59,7 +59,7 @@ temp=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/tmean/uganda_kenya_cli
 prec<-setExtent(prec,extent(28.6,42.5,-4.8,5))
 temp<-setExtent(temp,extent(28.6,42.5,-4.8,5))
 #create custom biovars
-biovars<-biovars_custom(prec,temp)
+biovars<-biovars_custom(temp,prec)
 writeRaster(biovars,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/KenyaBiovarsSeasonal",year),format="GTiff",overwrite=TRUE)
 }
 
@@ -75,6 +75,6 @@ writeRaster(biostack_mean,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars
 prec.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/prec/uganda_kenya_clips/CHELSA_prec_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaKenyaClip.tif"))
 temp.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/tmean/uganda_kenya_clips/CHELSA_tmean_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaKenyaClip.tif"))
 #create custom biovars
-biovars.f<-biovars_custom(prec.f,temp.f)
+biovars.f<-biovars_custom(temp.f,prec.f)
 names(biovars.f)<-c("BIO8S","BIO9S","BIO10S","BIO11S","BIO16S","BIO17S","BIO18S","BIO19S")
 writeRaster(biovars.f,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars/KenyaBiovarsSeasonalFuture"),format="GTiff",overwrite=TRUE)

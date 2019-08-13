@@ -16,7 +16,7 @@ OUTDIR=/home/fas/caccone/apb56/project/CHELSA/future/prec/uganda_kenya_clips
 
 for n in 1 2 3 4 5 6 7 8 9 10 11 12; do
 
-pksetmask -i CHELSA_pr_mon_GISS-E2-R_rcp45_r1i1p1_g025.nc_${n}_2041-2060.tif -m CHELSA_pr_mon_GISS-E2-R_rcp45_r1i1p1_g025.nc_${n}_2041-2060.tif -o $OUTDIR/CHELSA_prec_${n}_rcp45_2041-2060_Edit.tif --msknodata 65535 -nodata -999
+pksetmask -i CHELSA_pr_mon_GISS-E2-R_rcp45_r1i1p1_g025.nc_${n}_2041-2060.tif -m CHELSA_pr_mon_GISS-E2-R_rcp45_r1i1p1_g025.nc_${n}_2041-2060.tif -o $OUTDIR/CHELSA_prec_${n}_rcp45_2041-2060_Edit.tif --msknodata -32767 -nodata -999
 
 gdal_edit.py -a_nodata -999 $OUTDIR/CHELSA_prec_${n}_rcp45_2041-2060_Edit.tif    
 
@@ -34,7 +34,7 @@ OUTDIR=/home/fas/caccone/apb56/project/CHELSA/future/tmax/uganda_kenya_clips
 
 for n in 1 2 3 4 5 6 7 8 9 10 11 12; do
 
-pksetmask -i CHELSA_tasmax_mon_GISS-E2-R_rcp26_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -m CHELSA_tasmax_mon_GISS-E2-R_rcp26_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -o $OUTDIR/CHELSA_tmax_${n}_rcp45_2041-2060_Edit.tif --msknodata 65535 -nodata -999
+pksetmask -i CHELSA_tasmax_mon_GISS-E2-R_rcp26_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -m CHELSA_tasmax_mon_GISS-E2-R_rcp26_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -o $OUTDIR/CHELSA_tmax_${n}_rcp45_2041-2060_Edit.tif --msknodata -32767 -nodata -999
 
 gdal_edit.py -a_nodata -999 $OUTDIR/CHELSA_tmax_${n}_rcp45_2041-2060_Edit.tif
 
@@ -52,7 +52,7 @@ OUTDIR=/home/fas/caccone/apb56/project/CHELSA/future/tmin/uganda_kenya_clips
 
 for n in 1 2 3 4 5 6 7 8 9 10 11 12; do
 
-pksetmask -i CHELSA_tasmin_mon_GISS-E2-R_rcp26_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -m CHELSA_tasmin_mon_GISS-E2-R_rcp26_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -o $OUTDIR/CHELSA_tmin_${n}_rcp45_2041-2060_Edit.tif --msknodata 65535 -nodata -999
+pksetmask -i CHELSA_tasmin_mon_GISS-E2-R_rcp26_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -m CHELSA_tasmin_mon_GISS-E2-R_rcp26_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -o $OUTDIR/CHELSA_tmin_${n}_rcp45_2041-2060_Edit.tif --msknodata -32767 -nodata -999
 
 gdal_edit.py -a_nodata -999 $OUTDIR/CHELSA_tmin_${n}_rcp45_2041-2060_Edit.tif
 
@@ -70,7 +70,7 @@ OUTDIR=/home/fas/caccone/apb56/project/CHELSA/future/tmean/uganda_kenya_clips
 
 for n in 1 2 3 4 5 6 7 8 9 10 11 12; do
 
-pksetmask -i CHELSA_tas_mon_GISS-E2-R_rcp45_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -m CHELSA_tas_mon_GISS-E2-R_rcp45_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -o $OUTDIR/CHELSA_tmean_${n}_rcp45_2041-2060_Edit.tif --msknodata 65535 -nodata -999
+pksetmask -i CHELSA_tas_mon_GISS-E2-R_rcp45_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -m CHELSA_tas_mon_GISS-E2-R_rcp45_r1i1p1_g025.nc_${n}_2041-2060_V1.2.tif -o $OUTDIR/CHELSA_tmean_${n}_rcp45_2041-2060_Edit.tif --msknodata -32767 -nodata -999
 
 gdal_edit.py -a_nodata -999 $OUTDIR/CHELSA_tmean_${n}_rcp45_2041-2060_Edit.tif
 

@@ -5,7 +5,7 @@ library(foreach)
 library(doParallel)
 
 #load envvars and spatial lines files
-envvars<-stack("/home/fas/caccone/apb56/project/GPDHABITAT/envvars_kenya.tif")
+envvars<-stack("/home/fas/caccone/apb56/project/GPDHABITAT/chelsa_merit_vars_kenya.tif")
 combos_coords1<-read.csv("/home/fas/caccone/apb56/project/GPDHABITAT/coord_combos_cluster1.csv")
 combos_coords1<-combos_coords1[,-1] #get rid of index row
 combos_coords2<-read.csv("/home/fas/caccone/apb56/project/GPDHABITAT/coord_combos_cluster2.csv")
@@ -25,7 +25,7 @@ proj4string(spatial.p.cluster1) <- crs.geo
 numCores <- detectCores()
 registerDoParallel(numCores)  # use multicore, set to the number of our cores
 
-StraightMean1 <- foreach(i=1:27, .combine=cbind) %:%
+StraightMean1 <- foreach(i=1:29, .combine=cbind) %:%
         foreach(n=1:length(spatial.p.cluster1), .combine=rbind) %dopar% {
           raster::extract(envvars[[i]], spatial.p.cluster1[n], fun=mean, na.rm=TRUE)
         }
@@ -49,7 +49,7 @@ proj4string(spatial.p.cluster2) <- crs.geo
 numCores <- detectCores()-1
 registerDoParallel(numCores)  
 
-StraightMean2 <- foreach(i=1:27, .combine=cbind) %:%
+StraightMean2 <- foreach(i=1:29, .combine=cbind) %:%
         foreach(n=1:length(spatial.p.cluster2), .combine=rbind) %dopar% {
           raster::extract(envvars[[i]], spatial.p.cluster2[n], fun=mean, na.rm=TRUE)
         }
