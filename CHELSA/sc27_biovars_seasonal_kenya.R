@@ -74,6 +74,8 @@ writeRaster(biostack_mean,paste0("/home/fas/caccone/apb56/project/CHELSA/biovars
 #Average seasonal bioclim variables for all years (future)
 prec.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/prec/uganda_kenya_clips/CHELSA_prec_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaKenyaClip.tif"))
 temp.f=stack(paste0("/home/fas/caccone/apb56/project/CHELSA/future/tmean/uganda_kenya_clips/CHELSA_tmean_",c("1","2","3","4","5","6","7","8","9","10","11","12"),"_rcp45_2041-2060_UgandaKenyaClip.tif"))
+#convert temp to same units as current
+temp.f<-(temp.f/10 + 273.15)*10
 #create custom biovars
 biovars.f<-biovars_custom(temp.f,prec.f)
 names(biovars.f)<-c("BIO8S","BIO9S","BIO10S","BIO11S","BIO16S","BIO17S","BIO18S","BIO19S")
