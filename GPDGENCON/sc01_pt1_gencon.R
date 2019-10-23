@@ -50,7 +50,7 @@ for(i in 1:10){
   write.csv(testData, paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/testData_", i, ".csv"))
   trainData <- yourData[-testIndexes, ]
   assign(paste0("trainData_", i), trainData)
-  write.csv(trainData, paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/testData_", i, ".csv"))
+  write.csv(trainData, paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/trainData_", i, ".csv"))
 }
 
 

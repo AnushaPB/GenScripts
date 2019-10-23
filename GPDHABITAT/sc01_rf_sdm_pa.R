@@ -12,7 +12,7 @@ library(SDMTools)
 
 ##Generate necessary objects
 #field data
-gpd_field<-read.csv(file="/home/fas/caccone/apb56/project/GPDHABITAT/gpd_kenya_data_20152019.csv")
+gpd_field<-read.csv(file="/home/fas/caccone/apb56/project/GPDHABITAT/gpd_kentza_data_20152019.csv")
 
 #define CRS and coords
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")

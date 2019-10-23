@@ -13,6 +13,8 @@
 
 ulimit -c 0
 
+module load StdEnv
+
 module load R/3.4.4-foss-2018a-X11-20180131
 
 module load GDAL/2.2.3-foss-2018a-Python-2.7.14

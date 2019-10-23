@@ -86,7 +86,7 @@ StraightMeanDF.train <- as.data.frame(StraightMean.train)
 
 #StraightMeanDF.train$GeoDist <- DistVar.train
 
-StraightMeanDF.train$FST_lin <- Train.table$Distance
+StraightMeanDF.train$Distance <- Train.table$Distance
 
 #For testing
 StraightMean.test <- raster::extract(env, spatial.p.test, fun=mean, na.rm=TRUE)
@@ -97,7 +97,7 @@ StraightMeanDF.test <- as.data.frame(StraightMean.test)
 
 #StraightMeanDF.test$GeoDist <- DistVar.test
 
-StraightMeanDF.test$FST_lin <- Test.table$Distance
+StraightMeanDF.test$Distance <- Test.table$Distance
 
 
 
@@ -128,12 +128,12 @@ Cor2_vec  = c()
 #Validation parameters
 RSQ = tail(Straight_RF$rsq ,1 )
 RMSE = sqrt(tail(Straight_RF$mse ,1 ))
-RMSE2 = sqrt(((predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$FST_lin)^2))
-MAE = mean(abs(Straight_RF$predicted - StraightMeanDF.train$FST_lin))
-MAE2 =  mean(abs(predict(Straight_RF, StraightMeanDF.train) - StraightMeanDF.train$FST_lin))
-MAE3 = mean(abs(predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$FST_lin))
-Cor1 = cor(predict(Straight_RF, StraightMeanDF.train), StraightMeanDF.train$FST_lin)
-Cor2 = cor(predict(Straight_RF, StraightMeanDF.test), StraightMeanDF.test$FST_lin)
+RMSE2 = sqrt(mean((predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$Distance)^2))
+MAE = mean(abs(Straight_RF$predicted - StraightMeanDF.train$Distance))
+MAE2 =  mean(abs(predict(Straight_RF, StraightMeanDF.train) - StraightMeanDF.train$Distance))
+MAE3 = mean(abs(predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$Distance))
+Cor1 = cor(predict(Straight_RF, StraightMeanDF.train), StraightMeanDF.train$Distance)
+Cor2 = cor(predict(Straight_RF, StraightMeanDF.test), StraightMeanDF.test$Distance)
 
 #Add straight line parameters to the vectors
 RSQ_vec   = c(RSQ)
@@ -145,15 +145,15 @@ MAE3_vec = c(MAE3)
 Cor1_vec  = c(Cor1)
 Cor2_vec  = c(Cor2)
 
-fit = lm(Straight_RF$predicted ~ StraightMeanDF.train$FST_lin)
+fit = lm(Straight_RF$predicted ~ StraightMeanDF.train$Distance)
 pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/LinData_Run",foldnum,"_StraightRF_TrainingScatter.pdf"), 5, 5)
-plot(StraightMeanDF.train$FST_lin, Straight_RF$predicted,  xlab ="Observed FST* (training)", ylab="Predicted FST")
+plot(StraightMeanDF.train$Distance, Straight_RF$predicted,  xlab ="Observed FST* (training)", ylab="Predicted FST")
 legend("bottomright", legend=c(paste0("Pearson correlation = ", round(Cor2,3))), cex=0.7)
 dev.off()
 
-fit = lm(predict(Straight_RF, StraightMeanDF.test) ~ StraightMeanDF.test$FST_lin)
+fit = lm(predict(Straight_RF, StraightMeanDF.test) ~ StraightMeanDF.test$Distance)
 pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/LinData_Run",foldnum,"_StraightRF_ValidScatter.pdf"), 5, 5)
-plot(StraightMeanDF.test$FST_lin, predict(Straight_RF, StraightMeanDF.test),  xlab ="Observed FST (testing)", ylab="Predicted FST")
+plot(StraightMeanDF.test$Distance, predict(Straight_RF, StraightMeanDF.test),  xlab ="Observed FST (testing)", ylab="Predicted FST")
 legend("bottomright", legend=c(paste0("Pearson correlation = ", round(Cor2,3))), cex=0.7)
 dev.off()
 
@@ -181,7 +181,7 @@ P.points1.test <- SpatialPoints(Test.table[,c("long1","lat1")])
 P.points2.test <- SpatialPoints(Test.table[,c("long2","lat2")])
 proj4string(P.points1.test) <- crs.geo
 proj4string(P.points2.test) <- crs.geo
-NumPairs.test		    <- length(P.points1.test)
+NumPairs.test		           <- length(P.points1.test)
 
 
 #For now update NumPoints based on how many points you're running
@@ -210,8 +210,8 @@ print("cores registerred")
 ##pointlist = G.table[,c('Var1','Var2')]
 print("starting loops")
 
-it <- 1
-for (it in 1:2) {
+#it <- 1
+for (it in 1:10) {
   
   rm(trNAm1C)
   gc()
@@ -259,7 +259,7 @@ for (it in 1:2) {
   bestmtry <- tuneRF(tune_x, tune_y, stepFactor=1.5, improve=1e-5, ntree=500)
   mtry_opt <- bestmtry[,"mtry"][which.min(bestmtry[,"OOBError"])]
   
-  LCP_RF = randomForest(FST_lin ~ ., importance=TRUE, mtry=mtry_opt, na.action=na.omit, data=LcpLoopDF.train)
+  LCP_RF = randomForest(Distance ~ ., importance=TRUE, mtry=mtry_opt, na.action=na.omit, data=LcpLoopDF.train)
   
   assign(paste0("LCP_RF", it), LCP_RF )
   
@@ -275,12 +275,12 @@ for (it in 1:2) {
   #add validation parameters here
   RSQ = tail(LCP_RF$rsq ,1 )
   RMSE = sqrt(tail(LCP_RF$mse ,1 ))
-  RMSE2 = sqrt(((predict(LCP_RF, LcpLoopDF.test) - LcpLoopDF.test$FST_lin)^2))
-  MAE = mean(abs(LCP_RF$predicted - LcpLoopDF.train$FST_lin))
-  MAE2 =  mean(abs(predict(LCP_RF, LcpLoopDF.train) - LcpLoopDF.train$FST_lin))
-  MAE3 = mean(abs(predict(LCP_RF, LcpLoopDF.test) - LcpLoopDF.test$FST_lin))
-  Cor1 = cor(predict(LCP_RF, LcpLoopDF.train), LcpLoopDF.train$FST_lin)
-  Cor2 = cor(predict(LCP_RF, LcpLoopDF.test), LcpLoopDF.test$FST_lin)
+  RMSE2 = sqrt(mean((predict(LCP_RF, LcpLoopDF.test) - LcpLoopDF.test$Distance)^2))
+  MAE = mean(abs(LCP_RF$predicted - LcpLoopDF.train$Distance))
+  MAE2 =  mean(abs(predict(LCP_RF, LcpLoopDF.train) - LcpLoopDF.train$Distance))
+  MAE3 = mean(abs(predict(LCP_RF, LcpLoopDF.test) - LcpLoopDF.test$Distance))
+  Cor1 = cor(predict(LCP_RF, LcpLoopDF.train), LcpLoopDF.train$Distance)
+  Cor2 = cor(predict(LCP_RF, LcpLoopDF.test), LcpLoopDF.test$Distance)
   
   
   RSQ_vec   = append(RSQ_vec, RSQ)
@@ -318,25 +318,25 @@ write.csv(d, paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/LinDisData_
 RF0 = Straight_RF
 RF1 = LCP_RF1 
 RF2 = LCP_RF2 
-#RF3 = LCP_RF3 
-#RF4 = LCP_RF4 
-#RF5 = LCP_RF5 
-#RF6 = LCP_RF6 
-#RF7 = LCP_RF7
-#RF8 = LCP_RF8
-#RF9 = LCP_RF9
-#RF10 = LCP_RF10
+RF3 = LCP_RF3 
+RF4 = LCP_RF4 
+RF5 = LCP_RF5 
+RF6 = LCP_RF6 
+RF7 = LCP_RF7
+RF8 = LCP_RF8
+RF9 = LCP_RF9
+RF10 = LCP_RF10
 resist0 = StraightPred
 resist1 = pred1 
 resist2 = pred2 
-#resist3 = pred3 
-#resist4 = pred4 
-#resist5 = pred5 
-#resist6 = pred6 
-#resist7 = pred7
-#resist8 = pred8
-#resist9 = pred9
-#resist10 = pred10
+resist3 = pred3 
+resist4 = pred4 
+resist5 = pred5 
+resist6 = pred6 
+resist7 = pred7
+resist8 = pred8
+resist9 = pred9
+resist10 = pred10
 
 #Best iteration based on Cor2 (DECIDE WHETHER THIS IS WHAT YOU WANT)
 pos_max = which.max(Cor2_vec)
@@ -349,21 +349,20 @@ pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/LinDisData_Run",fold
 plot(get(ResistanceMap))
 dev.off()
 
-fit = lm(get(RF)$predicted ~ LcpLoopDF.train$FST_lin)
+fit = lm(get(RF)$predicted ~ LcpLoopDF.train$Distance)
 #adjr2 = round(summary(fit)$adj.r.squared, digits=3)
 pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/LinDisData_Run",foldnum,"_BestCor2_TrainingScatter_it", best_it, ".pdf"), 5, 5)
-plot(LcpLoopDF.train$FST_lin,get(RF)$predicted,  xlab ="Observed FST* (train)", ylab="Predicted FST")
+plot(LcpLoopDF.train$Distance,get(RF)$predicted,  xlab ="Observed FST* (train)", ylab="Predicted FST")
 #legend("bottomright", legend=c(paste0("Adj. R^2 = ", adjr2)), cex=0.7)
 dev.off()
 
-fit = lm(predict(get(RF), LcpLoopDF.test) ~ LcpLoopDF.test$FST_lin)
+fit = lm(predict(get(RF), LcpLoopDF.test) ~ LcpLoopDF.test$Distance)
 #adjr2 = round(summary(fit)$adj.r.squared, digits=3)
 pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/LinDisData_Run",foldnum,"_BestCor2_ValidScatter_it", best_it,".pdf"), 5, 5)
-plot(LcpLoopDF.test$FST_lin, predict(get(RF), LcpLoopDF.test),  xlab ="Observed FST* (valid)", ylab="Predicted FST")
+plot(LcpLoopDF.test$Distance, predict(get(RF), LcpLoopDF.test),  xlab ="Observed FST* (valid)", ylab="Predicted FST")
 #legend("bottomright", legend=c(paste0("Adj. R^2 = ", adjr2)), cex=0.7)
 dev.off()
 
 pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/LinDisData_Run",foldnum,"_BestCor2_ImpVars_it",best_it,".pdf"), 5, 5)
 varImpPlot(get(RF))
 dev.off()
-
