@@ -9,16 +9,15 @@
 #SBATCH --mail-user=anusha.bishop@yale.edu                                
 #SBATCH --job-name=sc02_pt2_gencon.sh                   
 
-####  for foldnum in 1 2 3 4 5 6 7 8 9 10; do sbatch --export=foldnum=$foldnum /home/fas/caccone/apb56/scripts/GPDGENCON/sc02_pt2_gencon.sh  ; done    
+####  for foldnum in 1 2 3 4 5 6 7 8 9 10; do sbatch --export=foldnum=$foldnum /home/fas/caccone/apb56/scripts/GFFGENCON/sc02_pt2_genconUGA.sh  ; done    
 
 #for testing script
-####  for foldnum in 1; do sbatch --export=foldnum=$foldnum /home/fas/caccone/apb56/scripts/GPDGENCON/sc02_pt2_gencon.sh  ; done 
+####  for foldnum in 1; do sbatch --export=foldnum=$foldnum /home/fas/caccone/apb56/scripts/GFFGENCON/sc02_pt2_genconUGA.sh  ; done 
 
 ulimit -c 0
-
 module load StdEnv
 
-module load R/3.5.3-foss-2018a-X11-20180131
+module load  R/3.5.3-foss-2018a-X11-20180131
 
 module load GDAL/2.2.3-foss-2018a-Python-2.7.14
 
@@ -26,8 +25,7 @@ module load GDAL/2.2.3-foss-2018a-Python-2.7.14
 
 export foldnum=$foldnum
 
-#run script with just envvars
-R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GPDGENCON/sc02_pt2_gencon.R
+R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GFFGENCON/sc02_pt2_genconUGA.R
 
-#run script with envvars and relative abundance model
-R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GPDGENCON/sc03_pt2_genconsad.R
+#UNCOMMENT to run script with envvars and relative abudance model
+#R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GFFGENCON/sc03_pt2_genconsadUGA.R
