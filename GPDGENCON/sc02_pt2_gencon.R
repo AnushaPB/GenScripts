@@ -366,3 +366,10 @@ dev.off()
 pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/LinDisData_Run",foldnum,"_BestCor2_ImpVars_it",best_it,".pdf"), 5, 5)
 varImpPlot(get(RF))
 dev.off()
+
+
+
+
+
+
+

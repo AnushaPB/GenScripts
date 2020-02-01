@@ -3,13 +3,13 @@
 #SBATCH -n 1 -c 1  -N 1                                                                                 
 #SBATCH --mem-per-cpu=50000                                                                            
 #SBATCH -t 10:00:00  
-#SBATCH -o /gpfs/scratch60/fas/caccone/apb56/stdout/sc01_pt1_gencon.sh.%J.out
-#SBATCH -e /gpfs/scratch60/fas/caccone/apb56/stderr/sc01_pt1_gencon.sh.%J.err     
+#SBATCH -o /gpfs/scratch60/fas/caccone/apb56/stdout/sc01_pt1_pca_genconKEN.sh.%J.out
+#SBATCH -e /gpfs/scratch60/fas/caccone/apb56/stderr/sc01_pt1_pca_genconKEN.sh.%J.err     
 #SBATCH --mail-type=ALL                                  
 #SBATCH --mail-user=anusha.bishop@yale.edu                                
-#SBATCH --job-name=sc01_pt1_gencon.sh                     
+#SBATCH --job-name=sc01_pt1_pca_genconKEN.sh                     
 
-# sbatch /home/fas/caccone/apb56/scripts/GPDGENCON/sc01_pt1_gencon.sh ; done   
+# sbatch /home/fas/caccone/apb56/scripts/GPDGENCON/sc01_pt1_pca_genconKEN.sh ; done   
 
 ulimit -c 0
 
@@ -21,4 +21,4 @@ module load GDAL/2.2.3-foss-2018a-Python-2.7.14
 
 # --slave      use if you only want to see output
 
-R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GFFGENCON/sc01_pt1_genconUGA.R
+R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GPDGENCON/sc01_pt1_pca_genconKEN.R
