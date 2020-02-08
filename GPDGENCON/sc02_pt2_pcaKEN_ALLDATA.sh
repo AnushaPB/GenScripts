@@ -1,8 +1,8 @@
 #!/bin/bash                                                                                                                                        
-#SBATCH -p day                                                                                                                                     
-#SBATCH --mem=118g                                                                                                                                 
-#SBATCH -n 1 -c 8 -N 1                                                                                                                             
-#SBATCH -t 24:00:00                                                                                                                                
+#SBATCH -p bigmem                                           
+#SBATCH --mem=500g
+#SBATCH -n 1 -c 8 -N 1
+#SBATCH -t 24:00:00                                      
 #SBATCH -o /gpfs/scratch60/fas/caccone/apb56/stdout/sc02_pt2_pcaKEN_ALLDATA.sh.%J.out                                                               
 #SBATCH -e /gpfs/scratch60/fas/caccone/apb56/stderr/sc02_pt2_pcaKEN_ALLDATA.sh.%J.err                                                               
 #SBATCH --mail-type=ALL                                                                                                                            
