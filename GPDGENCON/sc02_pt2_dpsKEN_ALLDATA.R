@@ -17,8 +17,8 @@ env <- stack("/home/fas/caccone/apb56/project/GPDHABITAT/chelsa_merit_vars_kenya
 ext <- extent(env)
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") # ... add coordinate system
 
-G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/ken_pca_gendf.csv", sep=",", header=T)
-#G.table <- read.table(file="/Users/Anusha/Documents/GpdKenya/ken_pca_gendf.csv", sep=",", header=T)
+G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/ken_dps_gendf.csv", sep=",", header=T)
+#G.table <- read.table(file="/Users/Anusha/Documents/GpdKenya/ken_dps_gendf.csv", sep=",", header=T)
 #REMOVE POINTS OUTSIDE OF EXTENT
 G.table <- subset(G.table, 
                   long1 > ext@xmin 
@@ -56,14 +56,12 @@ StraightMeanUniq <- foreach(r=1:nrow(begin.table), .combine='rbind', .packages=c
   spatial.p <- as(p, "SpatialLines")
   proj4string(spatial.p) <- crs.geo 
   data.frame(raster::extract(env, spatial.p, fun=mean, na.rm=TRUE))
-  }
-
-gc()
+}
+gc() 
 
 StraightMeanUniqDF <- as.data.frame(StraightMeanUniq)
 
-#export table
-write.csv(StraightMeanUniqDF,"/home/fas/caccone/apb56/project/GPDGENCON/PCA/StraightMeanUniqDF.csv") 
+write.csv(StraightMeanUniqDF,"/home/fas/caccone/apb56/project/GPDGENCON/DPS/StraightMeanUniqDF.csv")
 
 #bind unique coords to unique lines
 StraightMeanUniqDF <- cbind(unique_coords, StraightMeanUniqDF)
@@ -71,14 +69,13 @@ StraightMeanUniqDF <- cbind(unique_coords, StraightMeanUniqDF)
 #use left_join to merge tables by coords in order to get the distance for each pair/line
 StraightMeanDF <- left_join(StraightMeanUniqDF, G.table, by = c("long1","lat1","long2","lat2"))
 
-#subset to remove long/lat and var1/var2 and X before building models
+#subset to remove long/lat and var1/var2 before building models
 StraightMeanDF <- subset(StraightMeanDF, select=-c(long1,lat1,long2,lat2,Var1,Var2,X))
 
-write.csv(StraightMeanDF,"/home/fas/caccone/apb56/project/GPDGENCON/PCA/StraightMeanDF.csv")
+write.csv(StraightMeanDF,"/home/fas/caccone/apb56/project/GPDGENCON/DPS/StraightMeanDF.csv")
 
-#remove any NAs before random forest
+#remove any NAs for random forest
 StraightMeanDF <- StraightMeanDF[complete.cases(StraightMeanDF),]
-
 ###############################################
 #Model with all data
 ###############################################
@@ -94,4 +91,5 @@ StraightPred <- predict(env, Straight_RF)
 
 pred.cond <- 1/StraightPred #build conductance surface
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/PCA/LinFSTData_beforeLCP_AllData.RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/LinFSTData_beforeLCP_AllData.RData"))
+
