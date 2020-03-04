@@ -17,7 +17,7 @@ env <- stack("/home/fas/caccone/apb56/project/GPDHABITAT/chelsa_merit_vars_kenya
 ext <- extent(env)
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") # ... add coordinate system
 
-G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/ken_pca_gendf.csv", sep=",", header=T)
+G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/ken_pca_genbtwdf.csv", sep=",", header=T)
 #G.table <- read.table(file="/Users/Anusha/Documents/GpdKenya/ken_pca_gendf.csv", sep=",", header=T)
 #REMOVE POINTS OUTSIDE OF EXTENT
 G.table <- subset(G.table, 
@@ -72,7 +72,7 @@ StraightMeanUniqDF <- cbind(unique_coords, StraightMeanUniqDF)
 StraightMeanDF <- left_join(StraightMeanUniqDF, G.table, by = c("long1","lat1","long2","lat2"))
 
 #subset to remove long/lat and var1/var2 and X before building models
-StraightMeanDF <- subset(StraightMeanDF, select=-c(long1,lat1,long2,lat2,Var1,Var2,X))
+StraightMeanDF <- subset(StraightMeanDF, select=c("value",names(env)))
 
 write.csv(StraightMeanDF,"/home/fas/caccone/apb56/project/GPDGENCON/PCA/StraightMeanDF.csv")
 

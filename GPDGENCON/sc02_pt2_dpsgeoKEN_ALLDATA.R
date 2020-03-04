@@ -17,7 +17,7 @@ env <- stack("/home/fas/caccone/apb56/project/GPDHABITAT/chelsa_merit_vars_kenya
 ext <- extent(env)
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") # ... add coordinate system
 
-G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/ken_dps_genbtwdf.csv", sep=",", header=T)
+G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/ken_dps_gengeobtwdf.csv", sep=",", header=T)
 #G.table <- read.table(file="/Users/Anusha/Documents/GpdKenya/ken_dps_gendf.csv", sep=",", header=T)
 #REMOVE POINTS OUTSIDE OF EXTENT
 G.table <- subset(G.table, 
@@ -61,7 +61,7 @@ gc()
 
 StraightMeanUniqDF <- as.data.frame(StraightMeanUniq)
 
-write.csv(StraightMeanUniqDF,"/home/fas/caccone/apb56/project/GPDGENCON/DPS/StraightMeanUniqDF.csv")
+write.csv(StraightMeanUniqDF,"/home/fas/caccone/apb56/project/GPDGENCON/DPS/StraightMeanUniqGeoDF.csv")
 
 #bind unique coords to unique lines
 StraightMeanUniqDF <- cbind(unique_coords, StraightMeanUniqDF)
@@ -72,7 +72,7 @@ StraightMeanDF <- left_join(StraightMeanUniqDF, G.table, by = c("long1","lat1","
 #subset to remove long/lat and var1/var2 before building models
 StraightMeanDF <- subset(StraightMeanDF, select=c("value",names(env)))
 
-write.csv(StraightMeanDF,"/home/fas/caccone/apb56/project/GPDGENCON/DPS/StraightMeanDF.csv")
+write.csv(StraightMeanDF,"/home/fas/caccone/apb56/project/GPDGENCON/DPS/StraightMeanGeoDF.csv")
 
 #remove any NAs for random forest
 StraightMeanDF <- StraightMeanDF[complete.cases(StraightMeanDF),]
@@ -91,5 +91,5 @@ StraightPred <- predict(env, Straight_RF)
 
 pred.cond <- 1/StraightPred #build conductance surface
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/LinDPSData_beforeLCP_AllData.RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/LinDPSGeoData_beforeDPS_AllData.RData"))
 
