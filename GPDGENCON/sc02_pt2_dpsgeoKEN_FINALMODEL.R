@@ -12,7 +12,7 @@ library("doParallel")
 library("doMC")
 library("dplyr")
 
-load("/home/fas/caccone/apb56/project/GPDGENCON/DPS/LinDPSData_beforeLCP_AllData.RData")
+load("/home/fas/caccone/apb56/project/GPDGENCON/DPS/LinDPSGeoData_beforeLCP_AllData.RData")
 
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") # ... add coordinate system
 

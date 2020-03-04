@@ -94,4 +94,4 @@ StraightPred <- predict(env, Straight_RF)
 
 pred.cond <- 1/StraightPred #build conductance surface
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/PCA/LinFSTData_beforeLCP_AllData.RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/PCA/LinPCAData_beforeLCP_AllData.RData"))

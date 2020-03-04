@@ -39,8 +39,12 @@ rmr=function(x){
 #need to download test
 
 Test.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/testData_", foldnum, ".csv"), sep=",", header=T)
+#For testing;
+#Test.table <- Test.table[1:10,]
 
 Train.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/trainData_", foldnum, ".csv"), sep=",", header=T)
+#For testing:
+#Train.table <- Train.table[1:10,]
 
 #START BUILDING TRAIN DF
 #begin using objects that will be overwritten
@@ -146,7 +150,7 @@ Cor2_vec  = c()
 #Validation parameters
 RSQ = tail(Straight_RF$rsq ,1 )
 RMSE = sqrt(tail(Straight_RF$mse ,1 ))
-RMSE2 = sqrt(((predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$value)^2))
+RMSE2 = sqrt(mean((predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$value)^2))
 MAE = mean(abs(Straight_RF$predicted - StraightMeanDF.train$value))
 MAE2 =  mean(abs(predict(Straight_RF, StraightMeanDF.train) - StraightMeanDF.train$value))
 MAE3 = mean(abs(predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$value))
@@ -329,8 +333,10 @@ for (it in 1:10) {
   print(paste0("end of loop for iteration #", it))
   
 }  
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDPSData_afterLCP_Fold",foldnum,".RData"))
 
 d = data.frame(RSQ = RSQ_vec, RMSE = RMSE_vec, RMSE2 = RMSE2_vec, MAE = MAE_vec, MAE2 = MAE2_vec, MAE3 = MAE3_vec, Cor1 = Cor1_vec,  Cor2 = Cor2_vec) 
+
 write.csv(d, paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run", foldnum, "_ValidationTable.csv"), row.names =FALSE)
 
 RF0 = Straight_RF
