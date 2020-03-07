@@ -61,29 +61,29 @@ coordinates(end.coord) <- c("long2", "lat2")
 
 registerDoMC(cores=detectCores()) 
 
-StraightMeanUniq <- foreach(r=1:nrow(begin.table), .combine='rbind', .packages=c('raster', 'gdistance')  ,   .inorder=TRUE   ) %dopar% {
+StraightMedUniq <- foreach(r=1:nrow(begin.table), .combine='rbind', .packages=c('raster', 'gdistance')  ,   .inorder=TRUE   ) %dopar% {
   p <- psp(begin.table[r,1], begin.table[r,2], end.table[r,1], end.table[r,2], owin(range(c(begin.table[,1], end.table[,1])), range(c(begin.table[,2], end.table[,2]))))
   spatial.p <- as(p, "SpatialLines")
   proj4string(spatial.p) <- crs.geo 
-  data.frame(raster::extract(env, spatial.p, fun=mean, na.rm=TRUE))
+  data.frame(raster::extract(env, spatial.p, fun=median, na.rm=TRUE))
 }
 
 gc() 
 #end using objects that will be overwritten
 
-StraightMeanUniqDF.train <- as.data.frame(StraightMeanUniq)
+StraightMedUniqDF.train <- as.data.frame(StraightMedUniq)
 
 #bind unique coords to unique lines
-StraightMeanUniqDF.train <- cbind(unique_coords, StraightMeanUniqDF.train)
+StraightMedUniqDF.train <- cbind(unique_coords, StraightMedUniqDF.train)
 
 #use left_join to merge tables by coords in order to get the distance for each pair/line
-StraightMeanDF.train <- left_join(StraightMeanUniqDF.train, Train.table, by = c("long1","lat1","long2","lat2"))
+StraightMedDF.train <- left_join(StraightMedUniqDF.train, Train.table, by = c("long1","lat1","long2","lat2"))
 
 #subset to retain only necessary vars (remove long/lat, var1/var2, etc.) before building models
-StraightMeanDF.train <- StraightMeanDF.train[,c(names(env),"value")]
+StraightMedDF.train <- StraightMedDF.train[,c(names(env),"value")]
 
 #remove any NAs for random forest
-StraightMeanDF.train <- StraightMeanDF.train[complete.cases(StraightMeanDF.train),]
+StraightMedDF.train <- StraightMedDF.train[complete.cases(StraightMedDF.train),]
 
 #END BUILDING TRAIN DF
 
@@ -102,38 +102,38 @@ coordinates(end.coord) <- c("long2", "lat2")
 
 registerDoMC(cores=detectCores()) 
 
-StraightMeanUniq <- foreach(r=1:nrow(begin.table), .combine='rbind', .packages=c('raster', 'gdistance')  ,   .inorder=TRUE   ) %dopar% {
+StraightMedUniq <- foreach(r=1:nrow(begin.table), .combine='rbind', .packages=c('raster', 'gdistance')  ,   .inorder=TRUE   ) %dopar% {
   p <- psp(begin.table[r,1], begin.table[r,2], end.table[r,1], end.table[r,2], owin(range(c(begin.table[,1], end.table[,1])), range(c(begin.table[,2], end.table[,2]))))
   spatial.p <- as(p, "SpatialLines")
   proj4string(spatial.p) <- crs.geo 
-  data.frame(raster::extract(env, spatial.p, fun=mean, na.rm=TRUE))
+  data.frame(raster::extract(env, spatial.p, fun=median, na.rm=TRUE))
 }
 gc() 
 
 #end using objects that will be overwritten
-StraightMeanUniqDF.test <- as.data.frame(StraightMeanUniq)
+StraightMedUniqDF.test <- as.data.frame(StraightMedUniq)
 
 #bind unique coords to unique lines
-StraightMeanUniqDF.test <- cbind(unique_coords, StraightMeanUniqDF.test)
+StraightMedUniqDF.test <- cbind(unique_coords, StraightMedUniqDF.test)
 
 #use left_join to merge tables by coords in order to get the distance for each pair/line
-StraightMeanDF.test <- left_join(StraightMeanUniqDF.test, Test.table, by = c("long1","lat1","long2","lat2"))
+StraightMedDF.test <- left_join(StraightMedUniqDF.test, Test.table, by = c("long1","lat1","long2","lat2"))
 
 #subset to retain only necessary vars (remove long/lat, var1/var2, etc.) before building models
-StraightMeanDF.test<- StraightMeanDF.test[,c(names(env),"value")]
+StraightMedDF.test<- StraightMedDF.test[,c(names(env),"value")]
 
 #remove any NAs for random forest
-StraightMeanDF.test <- StraightMeanDF.test[complete.cases(StraightMeanDF.test),]
+StraightMedDF.test <- StraightMedDF.test[complete.cases(StraightMedDF.test),]
 
 set.seed(NULL)
 
 #tune RF
-tune_x <- StraightMeanDF.train[,names(env)]
-tune_y <- StraightMeanDF.train[,c("value")]
+tune_x <- StraightMedDF.train[,names(env)]
+tune_y <- StraightMedDF.train[,c("value")]
 bestmtry <- tuneRF(tune_x, tune_y, stepFactor=1.5, improve=1e-5, ntree=500)
 mtry_opt <- bestmtry[,"mtry"][which.min(bestmtry[,"OOBError"])]
 
-Straight_RF = randomForest(value ~ ., importance=TRUE, mtry = mtry_opt, na.action=na.omit, data=StraightMeanDF.train)
+Straight_RF = randomForest(value ~ ., importance=TRUE, mtry = mtry_opt, na.action=na.omit, data=StraightMedDF.train)
 
 gc()
 
@@ -150,12 +150,12 @@ Cor2_vec  = c()
 #Validation parameters
 RSQ = tail(Straight_RF$rsq ,1 )
 RMSE = sqrt(tail(Straight_RF$mse ,1 ))
-RMSE2 = sqrt(mean((predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$value)^2))
-MAE = mean(abs(Straight_RF$predicted - StraightMeanDF.train$value))
-MAE2 =  mean(abs(predict(Straight_RF, StraightMeanDF.train) - StraightMeanDF.train$value))
-MAE3 = mean(abs(predict(Straight_RF, StraightMeanDF.test) - StraightMeanDF.test$value))
-Cor1 = cor(predict(Straight_RF, StraightMeanDF.train), StraightMeanDF.train$value)
-Cor2 = cor(predict(Straight_RF, StraightMeanDF.test), StraightMeanDF.test$value)
+RMSE2 = sqrt(mean((predict(Straight_RF, StraightMedDF.test) - StraightMedDF.test$value)^2))
+MAE = mean(abs(Straight_RF$predicted - StraightMedDF.train$value))
+MAE2 =  mean(abs(predict(Straight_RF, StraightMedDF.train) - StraightMedDF.train$value))
+MAE3 = mean(abs(predict(Straight_RF, StraightMedDF.test) - StraightMedDF.test$value))
+Cor1 = cor(predict(Straight_RF, StraightMedDF.train), StraightMedDF.train$value)
+Cor2 = cor(predict(Straight_RF, StraightMedDF.test), StraightMedDF.test$value)
 
 #Add straight line parameters to the vectors
 RSQ_vec   = c(RSQ)
@@ -167,17 +167,6 @@ MAE3_vec = c(MAE3)
 Cor1_vec  = c(Cor1)
 Cor2_vec  = c(Cor2)
 
-fit = lm(Straight_RF$predicted ~ StraightMeanDF.train$value)
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinData_Run",foldnum,"_StraightRF_TrainingScatter.pdf"), 5, 5)
-plot(StraightMeanDF.train$value, Straight_RF$predicted,  xlab ="Observed GenDis* (training)", ylab="Predicted GenDis")
-legend("bottomright", legend=c(paste0("Pearson correlation = ", round(Cor2,3))), cex=0.7)
-dev.off()
-
-fit = lm(predict(Straight_RF, StraightMeanDF.test) ~ StraightMeanDF.test$value)
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinData_Run",foldnum,"_StraightRF_ValidScatter.pdf"), 5, 5)
-plot(StraightMeanDF.test$value, predict(Straight_RF, StraightMeanDF.test),  xlab ="Observed GenDis (testing)", ylab="Predicted GenDis")
-legend("bottomright", legend=c(paste0("Pearson correlation = ", round(Cor2,3))), cex=0.7)
-dev.off()
 
 StraightPred <- predict(env, Straight_RF)
 
@@ -202,7 +191,7 @@ P.points1.test <- SpatialPoints(unique_test[,c("long1","lat1")])
 P.points2.test <- SpatialPoints(unique_test[,c("long2","lat2")])
 proj4string(P.points1.test) <- crs.geo
 proj4string(P.points2.test) <- crs.geo
-NumPairs.test		    <- length(P.points1.test)
+NumPairs.test		           <- length(P.points1.test)
 
 #get parallelization set up
 nw <- detectCores()
@@ -214,7 +203,7 @@ print("cores registered")
 
 print("starting loops")
 
-for (it in 1:10) {
+for (it in 1:2) {
   
   rm(trNAm1C)
   gc()
@@ -229,7 +218,7 @@ for (it in 1:10) {
   gc()
   
   
-  #Extract mean value from LCP for TRAINING data
+  #Extract median value from LCP for TRAINING data
   
   UniqueLcpLoop.train <- foreach(r=1:NumPairs.train, .combine='rbind', .packages=c('raster', 'gdistance')  ,   .inorder=TRUE   ) %dopar% {
     if (extent(P.points1.train[r]) != extent(P.points2.train[r])){
@@ -237,7 +226,7 @@ for (it in 1:10) {
     } else {
       Ato <- P.points1.train[r]
     }
-    data.frame(raster::extract(env, Ato, fun=mean, na.rm=TRUE))
+    data.frame(raster::extract(env, Ato, fun=median, na.rm=TRUE))
   }
   
   UniqueLcpLoopDF.train <- as.data.frame(UniqueLcpLoop.train)
@@ -254,14 +243,14 @@ for (it in 1:10) {
   #remove any NAs for random forest
   LcpLoopDF.train <- LcpLoopDF.train[complete.cases(LcpLoopDF.train),]
   
-  #Extract mean value from LCP for TESTING data
+  #Extract median value from LCP for TESTING data
   UniqueLcpLoop.test <- foreach(r=1:NumPairs.test, .combine='rbind', .packages=c('raster', 'gdistance')  ,   .inorder=TRUE   ) %dopar% {
     if (extent(P.points1.test[r]) != extent(P.points2.test[r])){
       Ato <- shortestPath(trNAm1C, P.points1.test[r], P.points2.test[r]  , output="SpatialLines")
     } else {
       Ato <- P.points1.test[r]
     }
-    data.frame(raster::extract(env, Ato, fun=mean, na.rm=TRUE))
+    data.frame(raster::extract(env, Ato, fun=Med, na.rm=TRUE))
   }
   
   UniqueLcpLoopDF.test <- as.data.frame(UniqueLcpLoop.test)
@@ -330,41 +319,39 @@ for (it in 1:10) {
   
   gc()
   
-  save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/its/LinDPSData_afterLCP_Fold",foldnum,"_it”,it,”.RData"))
-  
   print(paste0("end of loop for iteration #", it))
   
 }  
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDPSData_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/MEDIAN/LinDPSData_afterLCP_Fold",foldnum,".RData"))
 
 d = data.frame(RSQ = RSQ_vec, RMSE = RMSE_vec, RMSE2 = RMSE2_vec, MAE = MAE_vec, MAE2 = MAE2_vec, MAE3 = MAE3_vec, Cor1 = Cor1_vec,  Cor2 = Cor2_vec) 
 
-write.csv(d, paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run", foldnum, "_ValidationTable.csv"), row.names =FALSE)
+write.csv(d, paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/MEDIAN/LinDisData_Run", foldnum, "_ValidationTable.csv"), row.names =FALSE)
 
 RF0 = Straight_RF
 RF1 = LCP_RF1 
 RF2 = LCP_RF2 
-RF3 = LCP_RF3 
-RF4 = LCP_RF4 
-RF5 = LCP_RF5 
-RF6 = LCP_RF6 
-RF7 = LCP_RF7
-RF8 = LCP_RF8
-RF9 = LCP_RF9
-RF10 = LCP_RF10
+#RF3 = LCP_RF3 
+#RF4 = LCP_RF4 
+#RF5 = LCP_RF5 
+#RF6 = LCP_RF6 
+#RF7 = LCP_RF7
+#RF8 = LCP_RF8
+#RF9 = LCP_RF9
+#RF10 = LCP_RF10
 resist0 = StraightPred
 resist1 = pred1 
 resist2 = pred2 
-resist3 = pred3 
-resist4 = pred4 
-resist5 = pred5 
-resist6 = pred6 
-resist7 = pred7
-resist8 = pred8
-resist9 = pred9
-resist10 = pred10
+#resist3 = pred3 
+#resist4 = pred4 
+#resist5 = pred5 
+#resist6 = pred6 
+#resist7 = pred7
+#resist8 = pred8
+#resist9 = pred9
+#resist10 = pred10
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDPSData_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/MEDIAN/LinDPSData_afterLCP_Fold",foldnum,".RData"))
 
 #Best iteration based on Cor2 (DECIDE WHETHER THIS IS WHAT YOU WANT)
 pos_max = which.max(RSQ_vec)
@@ -373,26 +360,4 @@ best_it = pos_max - 1 #first thing in the list in the list is straight lines and
 RF = paste0("RF", best_it)
 ResistanceMap = paste0("resist", best_it)
 
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run",foldnum,"_BestCor2_Pred_it",best_it,".pdf"), 5, 5)
-plot(get(ResistanceMap))
-dev.off()
-
-fit = lm(get(RF)$predicted ~ LcpLoopDF.train$value)
-#adjr2 = round(summary(fit)$adj.r.squared, digits=3)
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run",foldnum,"_BestCor2_TrainingScatter_it", best_it, ".pdf"), 5, 5)
-plot(LcpLoopDF.train$value,get(RF)$predicted,  xlab ="Observed DPS* (train)", ylab="Predicted DPS")
-#legend("bottomright", legend=c(paste0("Adj. R^2 = ", adjr2)), cex=0.7)
-dev.off()
-
-fit = lm(predict(get(RF), LcpLoopDF.test) ~ LcpLoopDF.test$value)
-#adjr2 = round(summary(fit)$adj.r.squared, digits=3)
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run",foldnum,"_BestCor2_ValidScatter_it", best_it,".pdf"), 5, 5)
-plot(LcpLoopDF.test$value, predict(get(RF), LcpLoopDF.test),  xlab ="Observed DPS* (valid)", ylab="Predicted DPS")
-#legend("bottomright", legend=c(paste0("Adj. R^2 = ", adjr2)), cex=0.7)
-dev.off()
-
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run",foldnum,"_BestCor2_ImpVars_it",best_it,".pdf"), 5, 5)
-varImpPlot(get(RF))
-dev.off()
-
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDPSData_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/MEDIAN/LinDPSData_afterLCP_Fold",foldnum,".RData"))
