@@ -1,4 +1,3 @@
-run=1
 
 library("sp")
 library("spatstat")
@@ -26,15 +25,15 @@ rmr=function(x){
 
 rm(env)
 
-#load prepared raster stack for North America
-env=stack("/home/fas/caccone/apb56/project/GPDHABITAT/chelsa_merit_vars_kenya.tif")
+#load prepared raster stack
+env <- stack("/home/fas/caccone/apb56/project/GPDHABITAT/chelsa_merit_vars_kenya.tif")
 
 ###############################################
 #Plot lines as SpatialLines:
 ###############################################
 
 #Plot straight lines for first iteration of RF
-G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/gencon_df.csv", sep=",", header=T)
+G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/ken_reynolds_gendf.csv", sep=",", header=T)
 
 #Randomly shuffle the data
 yourData<-G.table[sample(nrow(G.table)),]
@@ -47,12 +46,12 @@ for(i in 1:10){
   #Segement your data by fold using the which() function 
   testIndexes <- which(folds==i,arr.ind=TRUE)
   testData <- yourData[testIndexes, ]
-  write.csv(testData, paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/testData_", i, ".csv"))
+  write.csv(testData, paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/CV/testData_", i, ".csv"))
   trainData <- yourData[-testIndexes, ]
   assign(paste0("trainData_", i), trainData)
-  write.csv(trainData, paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/trainData_", i, ".csv"))
+  write.csv(trainData, paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/CV/trainData_", i, ".csv"))
 }
 
 
-save.image(file = "/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/RF_pt1.RData")
+save.image(file = "/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/CV/RF_pt1.RData")
 

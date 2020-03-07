@@ -40,11 +40,11 @@ rmr=function(x){
 
 Test.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/GeotestData_", foldnum, ".csv"), sep=",", header=T)
 #For testing;
-#Test.table <- Test.table[1:10,]
+Test.table <- Test.table[1:10,]
 
 Train.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/GeotrainData_", foldnum, ".csv"), sep=",", header=T)
 #For testing:
-#Train.table <- Train.table[1:10,]
+Train.table <- Train.table[1:10,]
 
 #START BUILDING TRAIN DF
 #begin using objects that will be overwritten
@@ -133,7 +133,7 @@ tune_y <- StraightMeanDF.train[,c("value")]
 bestmtry <- tuneRF(tune_x, tune_y, stepFactor=1.5, improve=1e-5, ntree=500)
 mtry_opt <- bestmtry[,"mtry"][which.min(bestmtry[,"OOBError"])]
 
-Straight_RF = randomForest(value ~ ., importance=TRUE, mtry = mtry_opt, na.action=na.omit, data=StraightMeanDF.train)
+Straight_RF <- randomForest(value ~ ., importance=TRUE, mtry = mtry_opt, na.action=na.omit, data=StraightMeanDF.train)
 
 gc()
 

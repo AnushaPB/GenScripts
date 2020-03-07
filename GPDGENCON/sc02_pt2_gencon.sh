@@ -30,4 +30,4 @@ export foldnum=$foldnum
 R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GPDGENCON/sc02_pt2_gencon.R
 
 #run script with envvars and relative abundance model
-R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GPDGENCON/sc03_pt2_genconsad.R
+#R --vanilla --no-readline -q  -f /home/fas/caccone/apb56/scripts/GPDGENCON/sc03_pt2_genconsad.R

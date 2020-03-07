@@ -330,6 +330,8 @@ for (it in 1:10) {
   
   gc()
   
+  save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/its/LinDPSData_afterLCP_Fold",foldnum,"_it”,it,”.RData"))
+  
   print(paste0("end of loop for iteration #", it))
   
 }  
