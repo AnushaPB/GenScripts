@@ -34,11 +34,11 @@ rmr=function(x){
 ###############################################
 pixels_raster <- env[[1]]
 pixels_raster[,] <- 1
-names(pixels_raster) <- "StraightSumPixels"
+names(pixels_raster) <- "pixvals"
 
 #create for projection
 envPlus <- addLayer(env,pixels_raster)
-names(envPlus) <- c(names(env),"StraightSumPixels") 
+names(envPlus) <- c(names(env),"pixvals") 
 
 ###############################################
 #Plot lines as SpatialLines:
@@ -86,9 +86,9 @@ proj4string(spatial.p.test) <- crs.geo  # define projection system of our data
 #Calculate mean of straight lines and making initial RF model
 #######################################
 #For training
-envvals.train <- raster::extract(env, spatial.p.train, fun=mean, na.rm=TRUE)
-pixvals.train <- raster::extract(pixels_raster, spatial.p.train, fun=sum, na.rm=TRUE)
-StraightMean.train <- cbind(envvals.train,pixvals.train)
+envvals <- raster::extract(env, spatial.p.train, fun=mean, na.rm=TRUE)
+pixvals <- raster::extract(pixels_raster, spatial.p.train, fun=sum, na.rm=TRUE)
+StraightMean.train <- cbind(envvals,pixvals)
 
 #DistVar.train <- raster::extract(GeoDist, spatial.p.train, fun=sum, na.rm=TRUE)
 
@@ -99,9 +99,9 @@ StraightMeanDF.train <- as.data.frame(StraightMean.train)
 StraightMeanDF.train$Distance <- Train.table$Distance
 
 #For testing
-envvals.test <- raster::extract(env, spatial.p.test, fun=mean, na.rm=TRUE)
-pixvals.test <- raster::extract(pixels_raster, spatial.p.test, fun=sum, na.rm=TRUE)
-StraightMean.test <- cbind(envvals.test,pixvals.train)
+envvals <- raster::extract(env, spatial.p.test, fun=mean, na.rm=TRUE)
+pixvals <- raster::extract(pixels_raster, spatial.p.test, fun=sum, na.rm=TRUE)
+StraightMean.test <- cbind(envvals,pixvals)
 
 #DistVar.test <- raster::extract(GeoDist, spatial.p.test, fun=sum, na.rm=TRUE)
 
@@ -114,7 +114,7 @@ StraightMeanDF.test$Distance <- Test.table$Distance
 set.seed(NULL)
 
 #check these
-tune_x <- StraightMeanDF.train[,c(names(env),names(pixels_raster))]
+tune_x <- StraightMeanDF.train[,c(names(env),"pixvals")]
 tune_y <- StraightMeanDF.train[,c("Distance")]
 bestmtry <- tuneRF(tune_x, tune_y, stepFactor=1.5, improve=1e-5, ntree=500)
 mtry_opt <- bestmtry[,"mtry"][which.min(bestmtry[,"OOBError"])]
@@ -159,7 +159,7 @@ print("first prediction resistance surface done")
 
 pred.cond <- 1/StraightPred #build conductance surface
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/Buoyer/LinFSTData_beforeLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/LinFSTData_beforeLCP_Fold",foldnum,".RData"))
 
 
 #Prepare points for use in least cost path loops - Training
@@ -175,7 +175,7 @@ P.points1.test <- SpatialPoints(Test.table[,c("long1","lat1")])
 P.points2.test <- SpatialPoints(Test.table[,c("long2","lat2")])
 proj4string(P.points1.test) <- crs.geo
 proj4string(P.points2.test) <- crs.geo
-NumPairs.test		                  <- length(P.points1.test)
+NumPairs.test		                         <- length(P.points1.test)
 
 
 #get parallelization set up
@@ -227,7 +227,7 @@ for (it in 1:3) {
   LcpLoopDF.test <- as.data.frame(LcpLoop.test)
   LcpLoopDF.test$Distance = Test.table$Distance
   
-  tune_x <- LcpLoopDF.train[,c(names(env),names(pixels_raster))]
+  tune_x <- LcpLoopDF.train[,c(names(env),"pixvals")]
   tune_y <- LcpLoopDF.train[,c("Distance")]
   bestmtry <- tuneRF(tune_x, tune_y, stepFactor=1.5, improve=1e-5, ntree=500)
   mtry_opt <- bestmtry[,"mtry"][which.min(bestmtry[,"OOBError"])]
@@ -319,4 +319,3 @@ RF = paste0("RF", best_it)
 ResistanceMap = paste0("resist", best_it)
 
 save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BUOYER/LinDPSData_afterLCP_Fold",foldnum,".RData"))
-
