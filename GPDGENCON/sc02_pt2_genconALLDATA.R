@@ -12,7 +12,7 @@ library("doParallel")
 library("doMC")
 
 #Plot straight lines for first iteration of RF
-G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/gencon_df.csv", sep=",", header=T)
+G.table <- read.table(file="/home/fas/caccone/apb56/project/GPDGENCON/ken_reynolds_gendf.csv", sep=",", header=T)
 
 env <- stack("/home/fas/caccone/apb56/project/GPDHABITAT/chelsa_merit_vars_kenya.tif")
 
@@ -64,5 +64,5 @@ StraightPred <- predict(env, Straight_RF)
 
 pred.cond <- 1/StraightPred #build conductance surface
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/RF/LinFSTData_beforeLCP_AllData.RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/LinReynoldsData_beforeLCP_AllData.RData"))
 
