@@ -159,7 +159,7 @@ print("first prediction resistance surface done")
 
 pred.cond <- 1/StraightPred #build conductance surface
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/LinFSTData_beforeLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/CV/LinReynoldsBouyer_beforeLCP_Fold",foldnum,".RData"))
 
 
 #Prepare points for use in least cost path loops - Training
@@ -283,10 +283,10 @@ for (it in 1:3) {
   
 }  
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BUOYER/LinReynoldsData_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/CV/LinReynoldsBouyer_afterLCP_Fold",foldnum,".RData"))
 
 d = data.frame(RSQ = RSQ_vec, RMSE = RMSE_vec, RMSE2 = RMSE2_vec, MAE = MAE_vec, MAE2 = MAE2_vec, MAE3 = MAE3_vec, Cor1 = Cor1_vec,  Cor2 = Cor2_vec)
-write.csv(d, paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BUOYER/LinDisData_Run", foldnum, "_ValidationTable.csv"), row.names =FALSE)
+write.csv(d, paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/CV/LinReynoldsBouyer_Run", foldnum, "_ValidationTable.csv"), row.names =FALSE)
 
 RF0 = Straight_RF
 RF1 = LCP_RF1 
@@ -318,4 +318,4 @@ best_it = pos_max - 1 #first thing in the list in the list is straight lines and
 RF = paste0("RF", best_it)
 ResistanceMap = paste0("resist", best_it)
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BUOYER/LinDPSData_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/CV/LinReynoldsBouyer_afterLCP_Fold",foldnum,".RData"))

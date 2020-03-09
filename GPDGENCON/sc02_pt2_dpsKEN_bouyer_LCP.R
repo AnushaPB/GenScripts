@@ -35,16 +35,24 @@ rmr=function(x){
 ###############################################
 
 #Plot straight lines for first iteration of RF
-
-#need to download test
-
 Test.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/testData_", foldnum, ".csv"), sep=",", header=T)
-#For testing;
+##For testing;
 #Test.table <- Test.table[1:10,]
 
 Train.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/trainData_", foldnum, ".csv"), sep=",", header=T)
-#For testing:
+##For testing:
 #Train.table <- Train.table[1:10,]
+
+###############################################
+#Create pixel of 1s for Buoyer methods
+###############################################
+pixels_raster <- env[[1]]
+pixels_raster[,] <- 1
+names(pixels_raster) <- "pixvals"
+
+#create for projection
+envPlus <- addLayer(env,pixels_raster)
+names(envPlus) <- c(names(env),"pixvals") 
 
 #START BUILDING TRAIN DF
 #begin using objects that will be overwritten
@@ -65,9 +73,11 @@ StraightMeanUniq <- foreach(r=1:nrow(begin.table), .combine='rbind', .packages=c
   p <- psp(begin.table[r,1], begin.table[r,2], end.table[r,1], end.table[r,2], owin(range(c(begin.table[,1], end.table[,1])), range(c(begin.table[,2], end.table[,2]))))
   spatial.p <- as(p, "SpatialLines")
   proj4string(spatial.p) <- crs.geo 
-  data.frame(raster::extract(env, spatial.p, fun=mean, na.rm=TRUE))
+  envvals <- raster::extract(env, spatial.p, fun=mean, na.rm=TRUE)
+  pixvals <- raster::extract(pixels_raster, spatial.p, fun=sum, na.rm=TRUE)
+  cbind(envvals, pixvals)
 }
-
+  
 gc() 
 #end using objects that will be overwritten
 
@@ -80,7 +90,7 @@ StraightMeanUniqDF.train <- cbind(unique_coords, StraightMeanUniqDF.train)
 StraightMeanDF.train <- left_join(StraightMeanUniqDF.train, Train.table, by = c("long1","lat1","long2","lat2"))
 
 #subset to retain only necessary vars (remove long/lat, var1/var2, etc.) before building models
-StraightMeanDF.train <- StraightMeanDF.train[,c(names(env),"value")]
+StraightMeanDF.train <- StraightMeanDF.train[,c(names(env),"pixvals","value")]
 
 #remove any NAs for random forest
 StraightMeanDF.train <- StraightMeanDF.train[complete.cases(StraightMeanDF.train),]
@@ -106,8 +116,11 @@ StraightMeanUniq <- foreach(r=1:nrow(begin.table), .combine='rbind', .packages=c
   p <- psp(begin.table[r,1], begin.table[r,2], end.table[r,1], end.table[r,2], owin(range(c(begin.table[,1], end.table[,1])), range(c(begin.table[,2], end.table[,2]))))
   spatial.p <- as(p, "SpatialLines")
   proj4string(spatial.p) <- crs.geo 
-  data.frame(raster::extract(env, spatial.p, fun=mean, na.rm=TRUE))
+  envvals <- raster::extract(env, spatial.p, fun=mean, na.rm=TRUE)
+  pixvals <- raster::extract(pixels_raster, spatial.p, fun=sum, na.rm=TRUE)
+  cbind(envvals, pixvals)
 }
+
 gc() 
 
 #end using objects that will be overwritten
@@ -120,7 +133,7 @@ StraightMeanUniqDF.test <- cbind(unique_coords, StraightMeanUniqDF.test)
 StraightMeanDF.test <- left_join(StraightMeanUniqDF.test, Test.table, by = c("long1","lat1","long2","lat2"))
 
 #subset to retain only necessary vars (remove long/lat, var1/var2, etc.) before building models
-StraightMeanDF.test<- StraightMeanDF.test[,c(names(env),"value")]
+StraightMeanDF.test<- StraightMeanDF.test[,c(names(env),"pixvals","value")]
 
 #remove any NAs for random forest
 StraightMeanDF.test <- StraightMeanDF.test[complete.cases(StraightMeanDF.test),]
@@ -128,7 +141,7 @@ StraightMeanDF.test <- StraightMeanDF.test[complete.cases(StraightMeanDF.test),]
 set.seed(NULL)
 
 #tune RF
-tune_x <- StraightMeanDF.train[,names(env)]
+tune_x <- StraightMeanDF.train[,c(names(env),"pixvals")]
 tune_y <- StraightMeanDF.train[,c("value")]
 bestmtry <- tuneRF(tune_x, tune_y, stepFactor=1.5, improve=1e-5, ntree=500)
 mtry_opt <- bestmtry[,"mtry"][which.min(bestmtry[,"OOBError"])]
@@ -167,25 +180,13 @@ MAE3_vec = c(MAE3)
 Cor1_vec  = c(Cor1)
 Cor2_vec  = c(Cor2)
 
-fit = lm(Straight_RF$predicted ~ StraightMeanDF.train$value)
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinData_Run",foldnum,"_StraightRF_TrainingScatter.pdf"), 5, 5)
-plot(StraightMeanDF.train$value, Straight_RF$predicted,  xlab ="Observed GenDis* (training)", ylab="Predicted GenDis")
-legend("bottomright", legend=c(paste0("Pearson correlation = ", round(Cor2,3))), cex=0.7)
-dev.off()
-
-fit = lm(predict(Straight_RF, StraightMeanDF.test) ~ StraightMeanDF.test$value)
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinData_Run",foldnum,"_StraightRF_ValidScatter.pdf"), 5, 5)
-plot(StraightMeanDF.test$value, predict(Straight_RF, StraightMeanDF.test),  xlab ="Observed GenDis (testing)", ylab="Predicted GenDis")
-legend("bottomright", legend=c(paste0("Pearson correlation = ", round(Cor2,3))), cex=0.7)
-dev.off()
-
-StraightPred <- predict(env, Straight_RF)
+StraightPred <- predict(envPlus, Straight_RF)
 
 print("first prediction resistance surface done")
 
 pred.cond <- StraightPred #build conductance surface (DO NOT TAKE INVERSE FOR DPS - proportion of alleles shared is already a measure of connectivity)
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDPSData_beforeLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/BOUYER/LinDPSData_beforeLCP_Fold",foldnum,".RData"))
 
 #Prepare points for use in least cost path loops - Training
 unique_train <-  unique(Train.table[,c("long1","lat1","long2","lat2")])
@@ -202,7 +203,7 @@ P.points1.test <- SpatialPoints(unique_test[,c("long1","lat1")])
 P.points2.test <- SpatialPoints(unique_test[,c("long2","lat2")])
 proj4string(P.points1.test) <- crs.geo
 proj4string(P.points2.test) <- crs.geo
-NumPairs.test		    <- length(P.points1.test)
+NumPairs.test		           <- length(P.points1.test)
 
 #get parallelization set up
 nw <- detectCores()
@@ -214,7 +215,7 @@ print("cores registered")
 
 print("starting loops")
 
-for (it in 1:10) {
+for (it in 1:3) {
   
   rm(trNAm1C)
   gc()
@@ -237,7 +238,9 @@ for (it in 1:10) {
     } else {
       Ato <- P.points1.train[r]
     }
-    data.frame(raster::extract(env, Ato, fun=mean, na.rm=TRUE))
+    envvals <- raster::extract(env, Ato, fun=mean, na.rm=TRUE)
+    pixvals <- raster::extract(pixels_raster, Ato, fun=sum, na.rm=TRUE)
+    cbind(envvals, pixvals)
   }
   
   UniqueLcpLoopDF.train <- as.data.frame(UniqueLcpLoop.train)
@@ -249,7 +252,7 @@ for (it in 1:10) {
   LcpLoopDF.train <- left_join(UniqueLcpLoopDF.train, Train.table, by = c("long1","lat1","long2","lat2"))
   
   #subset to retain only necessary vars (remove long/lat, var1/var2, etc.) before building models
-  LcpLoopDF.train <- LcpLoopDF.train[,c(names(env),"value")]
+  LcpLoopDF.train <- LcpLoopDF.train[,c(names(env),"pixvals","value")]
   
   #remove any NAs for random forest
   LcpLoopDF.train <- LcpLoopDF.train[complete.cases(LcpLoopDF.train),]
@@ -261,7 +264,9 @@ for (it in 1:10) {
     } else {
       Ato <- P.points1.test[r]
     }
-    data.frame(raster::extract(env, Ato, fun=mean, na.rm=TRUE))
+    envvals <- raster::extract(env, Ato, fun=mean, na.rm=TRUE)
+    pixvals <- raster::extract(pixels_raster, Ato, fun=sum, na.rm=TRUE)
+    cbind(envvals, pixvals)
   }
   
   UniqueLcpLoopDF.test <- as.data.frame(UniqueLcpLoop.test)
@@ -273,12 +278,12 @@ for (it in 1:10) {
   LcpLoopDF.test <- left_join(UniqueLcpLoopDF.test, Test.table, by = c("long1","lat1","long2","lat2"))
   
   #subset to retain only necessary vars (remove long/lat, var1/var2, etc.) before building models
-  LcpLoopDF.test <- LcpLoopDF.test[,c(names(env),"value")]
+  LcpLoopDF.test <- LcpLoopDF.test[,c(names(env),"pixvals","value")]
   
   #remove any NAs for random forest
   LcpLoopDF.test <- LcpLoopDF.test[complete.cases(LcpLoopDF.test),]
   
-  tune_x <- LcpLoopDF.train[,names(env)]
+  tune_x <- LcpLoopDF.train[,c(names(env),"pixvals")]
   tune_y <- LcpLoopDF.train[,c("value")]
   bestmtry <- tuneRF(tune_x, tune_y, stepFactor=1.5, improve=1e-5, ntree=500)
   mtry_opt <- bestmtry[,"mtry"][which.min(bestmtry[,"OOBError"])]
@@ -315,10 +320,9 @@ for (it in 1:10) {
   Cor2_vec  = append(Cor2_vec, Cor2)
   
   
-  pred = predict(env, LCP_RF)
+  pred = predict(envPlus, LCP_RF)
   
   print(paste0("finishing prediction for iteration #", it))
-  
   
   rm(LCP_RF)
   
@@ -330,41 +334,38 @@ for (it in 1:10) {
   
   gc()
   
-  save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/its/LinDPSData_afterLCP_Fold",foldnum,"_it”,it,”.RData"))
-  
   print(paste0("end of loop for iteration #", it))
   
 }  
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDPSData_afterLCP_Fold",foldnum,".RData"))
+
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/BOUYER/LinDPSData_afterLCP_Fold",foldnum,".RData"))
 
 d = data.frame(RSQ = RSQ_vec, RMSE = RMSE_vec, RMSE2 = RMSE2_vec, MAE = MAE_vec, MAE2 = MAE2_vec, MAE3 = MAE3_vec, Cor1 = Cor1_vec,  Cor2 = Cor2_vec) 
-
-write.csv(d, paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run", foldnum, "_ValidationTable.csv"), row.names =FALSE)
 
 RF0 = Straight_RF
 RF1 = LCP_RF1 
 RF2 = LCP_RF2 
-RF3 = LCP_RF3 
-RF4 = LCP_RF4 
-RF5 = LCP_RF5 
-RF6 = LCP_RF6 
-RF7 = LCP_RF7
-RF8 = LCP_RF8
-RF9 = LCP_RF9
-RF10 = LCP_RF10
+#RF3 = LCP_RF3 
+#RF4 = LCP_RF4 
+#RF5 = LCP_RF5 
+#RF6 = LCP_RF6 
+#RF7 = LCP_RF7
+#RF8 = LCP_RF8
+#RF9 = LCP_RF9
+#RF10 = LCP_RF10
 resist0 = StraightPred
 resist1 = pred1 
 resist2 = pred2 
-resist3 = pred3 
-resist4 = pred4 
-resist5 = pred5 
-resist6 = pred6 
-resist7 = pred7
-resist8 = pred8
-resist9 = pred9
-resist10 = pred10
+#resist3 = pred3 
+#resist4 = pred4 
+#resist5 = pred5 
+#resist6 = pred6 
+#resist7 = pred7
+#resist8 = pred8
+#resist9 = pred9
+#resist10 = pred10
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDPSData_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/BOUYER/LinDPSData_afterLCP_Fold",foldnum,".RData"))
 
 #Best iteration based on Cor2 (DECIDE WHETHER THIS IS WHAT YOU WANT)
 pos_max = which.max(RSQ_vec)
@@ -373,26 +374,4 @@ best_it = pos_max - 1 #first thing in the list in the list is straight lines and
 RF = paste0("RF", best_it)
 ResistanceMap = paste0("resist", best_it)
 
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run",foldnum,"_BestCor2_Pred_it",best_it,".pdf"), 5, 5)
-plot(get(ResistanceMap))
-dev.off()
-
-fit = lm(get(RF)$predicted ~ LcpLoopDF.train$value)
-#adjr2 = round(summary(fit)$adj.r.squared, digits=3)
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run",foldnum,"_BestCor2_TrainingScatter_it", best_it, ".pdf"), 5, 5)
-plot(LcpLoopDF.train$value,get(RF)$predicted,  xlab ="Observed DPS* (train)", ylab="Predicted DPS")
-#legend("bottomright", legend=c(paste0("Adj. R^2 = ", adjr2)), cex=0.7)
-dev.off()
-
-fit = lm(predict(get(RF), LcpLoopDF.test) ~ LcpLoopDF.test$value)
-#adjr2 = round(summary(fit)$adj.r.squared, digits=3)
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run",foldnum,"_BestCor2_ValidScatter_it", best_it,".pdf"), 5, 5)
-plot(LcpLoopDF.test$value, predict(get(RF), LcpLoopDF.test),  xlab ="Observed DPS* (valid)", ylab="Predicted DPS")
-#legend("bottomright", legend=c(paste0("Adj. R^2 = ", adjr2)), cex=0.7)
-dev.off()
-
-pdf(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDisData_Run",foldnum,"_BestCor2_ImpVars_it",best_it,".pdf"), 5, 5)
-varImpPlot(get(RF))
-dev.off()
-
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/CV/LinDPSData_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/DPS/BOUYER/LinDPSData_afterLCP_Fold",foldnum,".RData"))
