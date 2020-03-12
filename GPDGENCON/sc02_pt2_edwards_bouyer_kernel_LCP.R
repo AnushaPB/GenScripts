@@ -1,5 +1,4 @@
 #Import foldnum for 10-fold cross validation
-
 foldnum<-Sys.getenv(c('foldnum'))
 print(foldnum)
 
@@ -17,7 +16,7 @@ library("foreach")
 library("doParallel")
 library("doMC")
 
-load("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/CV/RF_pt1.RData")
+load("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/CV/RF_pt1.RData")
 
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") # ... add coordinate system
 
@@ -28,6 +27,17 @@ rmr=function(x){
     rm(x)
   }
 }
+
+#load envvars
+envvars <- stack("/home/fas/caccone/apb56/project/GPDHABITAT/chelsa_merit_vars_kenya.tif")
+names(envvars)<-c(paste0("BIO",c(8:11),"S"),paste0("BIO",c(16:19),"S"),paste0("BIO",c(1:19)),"slope","altitude")
+
+#load kernel density layer
+kernel <- raster("/home/fas/caccone/apb56/project/GPDGENCON/KenTz_kernel_50m_2020-03-10_final.tif")
+names(kernel) <- "kernel"
+
+#stack predictor vars
+env <- stack(envvars,kernel)
 
 ###############################################
 #Create pixel of 1s for Buoyer methods
@@ -48,9 +58,9 @@ names(envPlus) <- c(names(env),"pixvals")
 
 #need to download test
 
-Test.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/CV/testData_", foldnum, ".csv"), sep=",", header=T)
+Test.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/CV/testData_", foldnum, ".csv"), sep=",", header=T)
 
-Train.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/CV/trainData_", foldnum, ".csv"), sep=",", header=T)
+Train.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/CV/trainData_", foldnum, ".csv"), sep=",", header=T)
 
 #For train data
 #create dataframes of begin and end coordinates from a file:
@@ -159,7 +169,7 @@ print("first prediction resistance surface done")
 
 pred.cond <- 1/StraightPred #build conductance surface
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/CV/LinReynoldsBouyer_beforeLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/KERNEL/CV/LinEdwardsBouyerKernel_beforeLCP_Fold",foldnum,".RData"))
 
 
 #Prepare points for use in least cost path loops - Training
@@ -175,7 +185,7 @@ P.points1.test <- SpatialPoints(Test.table[,c("long1","lat1")])
 P.points2.test <- SpatialPoints(Test.table[,c("long2","lat2")])
 proj4string(P.points1.test) <- crs.geo
 proj4string(P.points2.test) <- crs.geo
-NumPairs.test		                         <- length(P.points1.test)
+NumPairs.test		                                <- length(P.points1.test)
 
 
 #get parallelization set up
@@ -184,7 +194,7 @@ nw <- detectCores()
 # registerDoParallel(cl)     # is create multiple copy and it is usefull for works in multiple node
 registerDoMC(cores=nw)       # is create forks of the data good; for one node many cpu
 
-for (it in 1:3) {
+for (it in 1:10) {
   
   rm(trNAm1C)
   gc()
@@ -220,7 +230,7 @@ for (it in 1:3) {
   }
   
   
-  #Add Reynolds distance to the datasets
+  #Add Edwards distance to the datasets
   LcpLoopDF.train <- as.data.frame(LcpLoop.train)
   LcpLoopDF.train$Distance <- Train.table$Distance
   
@@ -283,10 +293,9 @@ for (it in 1:3) {
   
 }  
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/CV/LinReynoldsBouyer_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/KERNEL/CV/LinEdwardsBouyerKernel_afterLCP_Fold",foldnum,".RData"))
 
 d = data.frame(RSQ = RSQ_vec, RMSE = RMSE_vec, RMSE2 = RMSE2_vec, MAE = MAE_vec, MAE2 = MAE2_vec, MAE3 = MAE3_vec, Cor1 = Cor1_vec,  Cor2 = Cor2_vec)
-write.csv(d, paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/CV/LinReynoldsBouyer_Run", foldnum, "_ValidationTable.csv"), row.names =FALSE)
 
 RF0 = Straight_RF
 RF1 = LCP_RF1 
@@ -311,11 +320,11 @@ resist3 = pred3
 #resist9 = pred9
 #resist10 = pred10
 
-#Best iteration based on RSQ (DECIDE WHETHER THIS IS WHAT YOU WANT)
-pos_max = which.max(RSQ_vec)
+#Best iteration based on RMSE (DECIDE WHETHER THIS IS WHAT YOU WANT)
+pos_max = which.max(RMSE_vec)
 
 best_it = pos_max - 1 #first thing in the list in the list is straight lines and the second is iteration one, etc. 
 RF = paste0("RF", best_it)
 ResistanceMap = paste0("resist", best_it)
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/BOUYER/CV/LinReynoldsBouyer_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/KERNEL/CV/LinEdwardsBouyerKernel_afterLCP_Fold",foldnum,".RData"))

@@ -17,7 +17,7 @@ library("foreach")
 library("doParallel")
 library("doMC")
 
-load("/home/fas/caccone/apb56/project/GPDGENCON/RF/CV/RF_pt1.RData")
+load("/home/fas/caccone/apb56/project/GPDGENCON/Reynolds/CV/RF_pt1.RData")
 
 
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") # ... add coordinate system
