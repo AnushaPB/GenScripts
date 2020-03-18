@@ -62,11 +62,11 @@ names(envPlus) <- c(names(env),"pixvals")
 
 Test.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/LOPOCV/testData_", foldnum, ".csv"), sep=",", header=T)
 ##FOR TESTING SCRIPT:
-Test.table <- Test.table[1:5,]
+#Test.table <- Test.table[1:5,]
 
 Train.table <- read.table(file=paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/LOPOCV/trainData_", foldnum, ".csv"), sep=",", header=T)
 ##FOR TESTING SCRIPT:
-Train.table <- Test.table[1:5,]
+#Train.table <- Test.table[1:5,]
 
 #For train data
 #create dataframes of begin and end coordinates from a file:
@@ -336,4 +336,4 @@ best_it = pos_max - 1 #first thing in the list in the list is straight lines and
 RF = paste0("RF", best_it)
 ResistanceMap = paste0("resist", best_it)
 
-save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/LOPOCV/LinEdwardsBouyerKernel_afterLCP_Fold",foldnum,".RData"))
+save.image(paste0("/home/fas/caccone/apb56/project/GPDGENCON/Edwards/LOPOCV/LinEdwardsBouyerKernel_afterLCP_Point",foldnum,".RData"))
